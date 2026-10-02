@@ -80,6 +80,6 @@ Built to develop practical skills in bacterial NGS analysis and computational ge
 
 ## Author
 
-**Akhanda-04**
+**Musaddique Mubun Nabil**
 
 Microbiology | Bioinformatics | Computational Genomics
