@@ -1,0 +1,44 @@
+======================================
+     MAPPING QC REPORT
+     DRR1082025
+======================================
+
+### FLAGSTAT ###
+1973026 + 0 in total (QC-passed reads + QC-failed reads)
+1951846 + 0 primary
+0 + 0 secondary
+21180 + 0 supplementary
+0 + 0 duplicates
+0 + 0 primary duplicates
+1474518 + 0 mapped (74.73% : N/A)
+1453338 + 0 primary mapped (74.46% : N/A)
+1951846 + 0 paired in sequencing
+975923 + 0 read1
+975923 + 0 read2
+1443478 + 0 properly paired (73.95% : N/A)
+1449246 + 0 with itself and mate mapped
+4092 + 0 singletons (0.21% : N/A)
+0 + 0 with mate mapped to a different chr
+0 + 0 with mate mapped to a different chr (mapQ>=5)
+
+### COVERAGE ###
+#rname	startpos	endpos	numreads	covbases	coverage	meandepth	meanbaseq	meanmapq
+NC_000913.3	1	4641652	1474518	3993701	86.0405	60.0944	36.9	59
+
+### MEAN DEPTH ###
+60.0944
+
+### ZERO COVERAGE ###
+647951
+
+### SECONDARY ALIGNMENTS ###
+0
+
+### SUPPLEMENTARY ALIGNMENTS ###
+21180
+
+### HIGH MAPQ (>=30) ###
+1453283
+
+### DUPLICATES ###
+0

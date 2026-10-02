@@ -1,0 +1,30 @@
+# Raw sequencing data
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.sra
+
+# Alignment files
+*.sam
+*.bam
+*.bai
+*.cram
+
+# Variant files
+*.g.vcf
+*.g.vcf.gz
+*.vcf
+*.vcf.gz
+
+# Large QC files
+mapping/qc/depth.txt
+mapping/qc/*depth_all.txt
+
+# FastQC archives
+*.zip
+
+# Conda / Python environments
+.conda/
+env/
+venv/
