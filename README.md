@@ -582,9 +582,24 @@ ngs-project/
 
 Built to develop practical skills in bacterial NGS analysis and computational genomics.
 
+## Limitations
+
+- **Ploidy:** GATK HaplotypeCaller was run with its default diploid
+  setting, although bacteria are haploid. As a result, 1,707 variants
+  (1.6%) were called as heterozygous (0/1, 0|1) and 144 as multi-allelic
+  (1/2, 1|2). These are not true heterozygosity; they likely come from
+  repetitive regions (IS elements, rRNA operons) or misaligned reads.
+  The remaining 98.4% are homozygous alternate calls, as expected for a
+  haploid genome. Future runs should use `--sample-ploidy 1`.
+- **Filtering:** The VCF is unfiltered (FILTER = . for all 106,801 records).
+- **Reference:** Reads were mapped to E. coli K-12 MG1655, which is ~97%
+  similar to this clinical isolate. Mapping rate was 74.73%, so the
+  accessory genome (e.g. resistance genes) is not captured.
+  
 ## Author
 
 **Musaddique Mubin Nabil**
 
 Microbiology | Bioinformatics | Computational Genomics
+
 
