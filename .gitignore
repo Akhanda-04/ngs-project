@@ -10,21 +10,46 @@
 *.bam
 *.bai
 *.cram
+*.crai
 
 # Variant files
 *.g.vcf
 *.g.vcf.gz
 *.vcf
 *.vcf.gz
+*.bcf
 
-# Large QC files
+# Large QC outputs
 mapping/qc/depth.txt
 mapping/qc/*depth_all.txt
 
 # FastQC archives
 *.zip
 
+# Large annotation outputs
+interpretation/02_annotation/DRR1082025.ann.vcf
+
+# Rebuildable reference indexes
+*.bwt
+*.amb
+*.ann
+*.pac
+*.sa
+*.fai
+*.dict
+
+# SnpEff custom database and generated reports
+interpretation/02_variant_annotation/snpeff_data/
+
 # Conda / Python environments
 .conda/
 env/
 venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
