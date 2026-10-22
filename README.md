@@ -22,7 +22,7 @@ The reference GFF3 originally used for annotation contained an error. It was cor
 | SnpEff impact: HIGH / MODERATE / LOW | 0 / 0 / 0 |
 | SnpEff impact: MODIFIER | 10 rows |
 | Candidate variant | Insertion at `NC_000913.3:4296380`, `A -> ACG` |
-| Candidate status | Preliminary; variant validation unresolved |
+| Candidate status | Preliminary; variant validation solved |
 
 Key points:
 
