@@ -1,3 +1,71 @@
+
+# ==========================================
+# NGS project: generated and large data files
+# ==========================================
+
+# Raw and trimmed sequencing reads
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.sra
+data/raw_data/
+data/trimmed/
+ERR008613/
+
+# Alignment files
+*.sam
+*.bam
+*.bai
+*.cram
+*.crai
+
+# Variant calling outputs and indexes
+*.g.vcf
+*.g.vcf.gz
+*.vcf
+*.vcf.gz
+*.bcf
+*.tbi
+*.csi
+
+# Rebuildable reference indexes
+*.bwt
+*.amb
+*.pac
+*.sa
+*.fai
+*.dict
+
+# FastQC compressed archives
+*.zip
+
+# MultiQC bulky auxiliary data
+**/multiqc_data/*.parquet
+**/multiqc_data/llms-full.txt
+
+# Custom snpEff database
+interpretation/02_variant_annotation/snpeff_data/
+
+# Conda and Python environments
+.conda/
+env/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*~
+
+# Keep scripts, README, reports, tables and figures tracked
 # Raw sequencing data
 *.fastq
 *.fastq.gz
