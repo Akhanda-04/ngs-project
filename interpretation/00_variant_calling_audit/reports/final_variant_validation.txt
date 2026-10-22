@@ -1,0 +1,27 @@
+FINAL VARIANT VALIDATION
+Thu Oct 22 02:13:49 PM +06 2026
+
+===== variants/ERR008613.g.vcf.gz =====
+NC_000913.3	4296380	A	ACG,<NON_REF>	14798	.	356	1:2,333,0:335:99
+Lines   total/split/joined/realigned/mismatch_removed/dup_removed/skipped:	1/0/0/0/0/0/0
+REFERENCE_CHECK=PASS
+
+===== variants/ERR008613.haploid.vcf.gz =====
+NC_000913.3	4296380	A	ACG	14798	.	356	1:2,333:335:99
+Lines   total/split/joined/realigned/mismatch_removed/dup_removed/skipped:	1/0/0/0/0/0/0
+REFERENCE_CHECK=PASS
+
+===== variants/ERR008613.haploid_genotyped.vcf.gz =====
+NC_000913.3	4296380	A	ACG	14798	.	356	1:2,333:335:99
+Lines   total/split/joined/realigned/mismatch_removed/dup_removed/skipped:	1/0/0/0/0/0/0
+REFERENCE_CHECK=PASS
+
+===== FINAL VCF ASSERTION =====
+Expected A>ACG records at target: 1
+FINAL_CALL_CHECK=PASS
+
+===== FILE CHECKSUMS =====
+6b195feda4c66140f6762742eb8b30c2652f02b45878b174f5b00ef85ecc95d7  reference/reference.fasta
+b038dea8544bcf2adac11580378bf69977fb9042d13d000226cb6b43ea23af66  variants/ERR008613.g.vcf.gz
+925243d896e8ffb0fbee7f3565115bdc85d8615acee4efd1932ac87e1a177055  variants/ERR008613.haploid.vcf.gz
+129d8568d0ebe87f9f14d35c23a47dd3c6d9ceef4ae85d132ef213ccbff7e99f  variants/ERR008613.haploid_genotyped.vcf.gz

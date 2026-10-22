@@ -1,0 +1,4 @@
+Exact insertion operations at reference coordinate 4296380
+
+
+Counts by strand, length, sequence:
