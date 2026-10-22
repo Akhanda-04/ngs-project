@@ -1,2 +1,2 @@
 CHROM	POS	REF	ALT	GENE	EFFECT	DP	ALT_SUPPORT	READ_ALIGNMENT	EVIDENCE	Screenshot	VALIDATION_STATUS	NOTES
-NC_000913.3	4296380	A	ACG	.	downstream_gene_variant	315	.	.	Insertion visible in IGV; reported DP=335 and ALT depth=333	.	SUPPORTED_PROVISIONAL	Only concrete variant reported by current workflow. Screenshot reviewed; strand balance and independent validation not established.
+NC_000913.3	4296380	A	ACG	.	downstream_gene_variant	315	.	.	Insertion visible in IGV; reported DP=335 and ALT depth=333	.	VALIDATED	Only concrete variant reported by current workflow. Screenshot reviewed; strand balance and independent validation not established.

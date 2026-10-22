@@ -29,11 +29,14 @@ Intergenic variation can sometimes influence promoters, terminators, or other re
 
 See `functional_summary.tsv` for the row-level functional summary and `biological_findings.md` for the concise interpretation.
 
-## 5. Validation status
+## 5. Validation Status
 
-The available pileup shows strong coverage and many insertion observations at the candidate position. However, the diagnostic comparison previously performed returned no GVCF records under a filter that excluded ALT alleles containing `<NON_REF>`. That filter may exclude genuine mixed ALT records. The GVCF, genotyped VCF, and annotated VCF have therefore not yet been reconciled.
+Read-level inspection in IGV supports the candidate insertion at `NC_000913.3:4296380` (`A → ACG`). The inspected read alignments show numerous insertion-supporting observations at the candidate position, providing evidence that the insertion is present in the mapped reads.
 
-The candidate is **not considered fully validated** for final biological claims. The report intentionally preserves this limitation.
+However, the GVCF, haploid VCF, genotyped VCF, and annotated VCF have not yet been fully reconciled. The earlier diagnostic comparison excluded ALT fields containing `<NON_REF>`, which may have omitted relevant mixed-allele records. Therefore, that comparison alone cannot establish whether the candidate is absent from the GVCF.
+
+The insertion is classified as **read-supported based on IGV inspection**. Independent confirmation, systematic assessment of mapping quality and strand bias, and complete reconciliation of the variant-calling outputs have not been established. The candidate is therefore retained for further investigation, and its biological significance should not be considered conclusively established.
+
 
 ## 6. Limitations
 
