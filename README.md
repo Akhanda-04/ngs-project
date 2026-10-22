@@ -297,7 +297,7 @@ igv_validation/
 
 IGV allows visual inspection of reads around the candidate insertion at `NC_000913.3:4296380`. Review should assess read support, local depth, allele consistency, and possible alignment artifacts near repetitive or complex sequence.
 
-**Status:** Validation of this candidate is unresolved. An IGV screenshot is supporting evidence for visual review, not independent proof that a variant is real or biologically meaningful.
+**Status:** IGV read-level support observed; independent validation remains unresolved. The screenshot supports visual review but does not independently establish the variant's authenticity or biological significance. An IGV screenshot is supporting evidence for visual review, not independent proof that a variant is real or biologically meaningful.
 
 ### Stage 4: Biological Interpretation
 
