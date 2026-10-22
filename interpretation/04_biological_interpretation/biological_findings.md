@@ -29,7 +29,7 @@ No conclusion about antimicrobial resistance, virulence, pathogenicity, adaptati
 ## Limitations and next steps
 
 1. Reconcile the GVCF, genotyped VCF, and annotated VCF before final claims.
-2. Confirm the insertion's read-level support and allele balance.
+2. Reconciling the VCF outputs and assessing allele balance.
 3. Review the neighboring genes and regulatory features using the reference annotation.
 4. Compare the candidate with validated databases or literature if a phenotype is being investigated.
 5. Avoid claiming resistance or functional impact without supporting evidence.

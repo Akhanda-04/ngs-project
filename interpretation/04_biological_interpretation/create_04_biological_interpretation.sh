@@ -149,11 +149,12 @@ finding_lines = [
     "MODIFIER impact. This indicates that the current annotation does not "
     "predict a HIGH- or MODERATE-impact coding consequence for this record.",
     "",
-    "The read pileup previously showed many reads with a `+2CG` insertion "
-    "observation at this position. However, the GVCF-to-final-VCF discrepancy "
-    "has not been resolved. Therefore, the insertion should be treated as a "
-    "candidate requiring confirmation rather than a definitive biological "
-    "finding.",
+    "The read pileup and IGV inspection support read-level evidence for the "
+    "`+2CG` insertion at this position. However, the GVCF-to-final-VCF "
+    "discrepancy has not been resolved, and independent validation, strand "
+    "balance, and mapping-quality assessment have not been established. "
+    "Therefore, the insertion remains an IGV-supported candidate, not a "
+    "fully validated biological finding.",
     "",
     "## Biological significance",
     "",
@@ -166,7 +167,7 @@ finding_lines = [
     "## Limitations and next steps",
     "",
     "1. Reconcile the GVCF, genotyped VCF, and annotated VCF before final claims.",
-    "2. Confirm the insertion's read-level support and allele balance.",
+    "2. Assess allele balance, strand balance, and mapping quality; reconcile the GVCF, genotyped VCF, and annotated VCF.",
     "3. Review the neighboring genes and regulatory features using the reference annotation.",
     "4. Compare the candidate with validated databases or literature if a phenotype is being investigated.",
     "5. Avoid claiming resistance or functional impact without supporting evidence.",

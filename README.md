@@ -22,12 +22,12 @@ The reference GFF3 originally used for annotation contained an error. It was cor
 | SnpEff impact: HIGH / MODERATE / LOW | 0 / 0 / 0 |
 | SnpEff impact: MODIFIER | 10 rows |
 | Candidate variant | Insertion at `NC_000913.3:4296380`, `A -> ACG` |
-| Candidate status | Preliminary; variant validation solved |
+| Candidate status | Preliminary; IGV read-level support only; independent validation not established. |
 
 Key points:
 
 - No HIGH-, MODERATE-, or LOW-impact consequences were predicted. Every annotation row is a MODIFIER (non-coding or neighbouring-gene) consequence.
-- The only candidate is a short insertion (`A -> ACG`, i.e. a 2 bp insertion) at position 4,296,380. Its validation is unresolved.
+- The only candidate is a short insertion (`A -> ACG`, i.e. a 2 bp insertion) at position 4,296,380. Its validation is IGV read-level support only; independent validation not established.
 - Because all consequences are MODIFIER-level, these results do not support any claim of altered protein function, pathogenicity, or resistance.
 - Figure counts refer to annotation rows. One variant can generate several rows (for example, when it lies downstream of more than one gene), so row counts are not variant counts.
 
