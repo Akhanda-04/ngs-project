@@ -1,605 +1,436 @@
-# NGS Read Mapping & Variant Calling (Bacterial Illumina Data)
+# Bacterial Whole-Genome Sequencing (NGS) Analysis Pipeline
 
-A reproducible, command-line workflow for bacterial short-read analysis: quality control, trimming, reference-based mapping, BAM processing, GATK variant calling, filtering, and genome-browser inspection.
+## Project Overview
 
-**Sample:** SRA run `DRR1082025` (*Escherichia coli*, paired-end Illumina) mapped to the *E. coli* str. K-12 substr. MG1655 reference (`NC_000913.3`).
+This project implements a bacterial next-generation sequencing (NGS) analysis workflow using paired-end FASTQ reads. It covers read quality control, adapter and quality trimming, reference-based read mapping, variant calling, variant annotation, candidate prioritization, and biological interpretation.
 
-**Status:** In progress. QC, trimming, mapping, and duplicate marking are complete. Haploid variant calling, filtering, and annotation are pending (see [Limitations and next steps](#limitations-and-next-steps)).
+The project uses the sequencing dataset `ERR008613` and the *Escherichia coli* K-12 substrain MG1655 reference genome (`NC_000913.3`).
 
----
+The main objective is to identify genomic variants in the sequenced isolate, characterize their predicted consequences, prioritize potentially important variants, and organize the findings for further biological investigation.
 
-## Key observations
+> **Important:** Variant annotation and prioritization provide computational predictions. They do not independently establish a variant's biological function, pathogenicity, or antimicrobial resistance phenotype.
 
-- **Read quality:** R2 is noticeably worse than R1 (per-base quality FAIL vs WARN), with tile-specific quality problems and technical sequences flagged in the overrepresented-sequences module. Details in [`pre_trim_notes.md`](pre_trim_notes.md).
-- **Coverage is high:** mean depth is 60.09x, mean mapping quality is 59, and duplication is very low (0.16%).
-- **Mapping rate is lower than expected:** only 74.73% of reads mapped, and 86.04% of the reference has coverage (about 648 kb with zero coverage). For reads from the same strain as the reference, a rate near 98% or higher would be expected. The cause is under investigation (see [Open question](#open-question-low-mapping-rate)).
+## Final Results Summary
 
----
+The reference GFF3 originally used for annotation contained an error. It was corrected, the SnpEff database was rebuilt from the corrected annotation, and the annotation, prioritization, and interpretation stages were re-run. **All results below reflect the corrected annotation.**
 
-## Workflow
-
-```mermaid
-flowchart TD
-    A[SRA: DRR1082025] --> B[FASTQ]
-    B --> C[FastQC - pre-trim]
-    C --> D[Trimmomatic]
-    D --> E[FastQC - post-trim]
-    E --> F[BWA-MEM with read groups]
-    F --> G[SAM to sorted, indexed BAM]
-    G --> H[MarkDuplicates]
-    H --> I[BAM QC: flagstat / stats / coverage]
-    H --> J[GATK HaplotypeCaller - GVCF]
-    J --> K[GenotypeGVCFs - VCF]
-    K --> L[Variant filtering and annotation - pending]
-    L --> M[IGV inspection]
-```
-
----
-
-## Dataset
-
-| Field | Details |
+| Item | Result |
 |---|---|
-| SRA run | DRR1082025 |
-| Organism | *Escherichia coli* |
-| Strain (per run record) | K-12 substr. MG1655 |
-| Reference genome | *E. coli* str. K-12 substr. MG1655, `NC_000913.3` |
-| Reference size | 4,641,652 bp |
-| Platform | Illumina |
-| Layout | Paired-end |
-| Source | NCBI SRA / DDBJ |
+| Annotation rows | 10 (rows, not unique variants) |
+| `downstream_gene_variant` | 9 rows |
+| `intergenic_region` | 1 row |
+| SnpEff impact: HIGH / MODERATE / LOW | 0 / 0 / 0 |
+| SnpEff impact: MODIFIER | 10 rows |
+| Candidate variant | Insertion at `NC_000913.3:4296380`, `A -> ACG` |
+| Candidate status | Preliminary; variant validation unresolved |
 
-Large files (FASTQ, SAM, BAM, GVCF, VCF) are excluded from the repository. Small QC reports, metrics, and reference index files are kept.
+Key points:
 
----
+- No HIGH-, MODERATE-, or LOW-impact consequences were predicted. Every annotation row is a MODIFIER (non-coding or neighbouring-gene) consequence.
+- The only candidate is a short insertion (`A -> ACG`, i.e. a 2 bp insertion) at position 4,296,380. Its validation is unresolved.
+- Because all consequences are MODIFIER-level, these results do not support any claim of altered protein function, pathogenicity, or resistance.
+- Figure counts refer to annotation rows. One variant can generate several rows (for example, when it lies downstream of more than one gene), so row counts are not variant counts.
 
-## Tools
+## Workflow Overview
 
-| Step | Tool |
-|---|---|
-| Data download | SRA Toolkit |
-| Read QC | FastQC |
-| Trimming | Trimmomatic |
-| Mapping | BWA-MEM |
-| BAM processing and QC | SAMtools |
-| Duplicate marking, variant calling | GATK (Picard MarkDuplicates, HaplotypeCaller, GenotypeGVCFs) |
-| Visualization | IGV |
-| Environment | Conda/Mamba, Linux |
-
-Tool versions: _add exact versions here (run `<tool> --version`) and export the environment with `mamba env export --from-history > environment.yml`._
-
----
-
-## Results
-
-### 1. Raw-read QC (FastQC)
-
-| Metric | R1 | R2 |
-|---|---|---|
-| Reads | 1,066,446 | 1,066,446 |
-| Reported sequence length | 35-301 bp | 35-301 bp |
-| Per-base sequence quality | WARN | FAIL |
-| Adapter content | PASS | PASS |
-| Per-sequence GC content | FAIL | FAIL |
-| Approx. GC content | ~50% | ~50% |
-
-The variable read length (35-301 bp) suggests the reads may have been processed before submission. Full interpretation: [`pre_trim_notes.md`](pre_trim_notes.md).
-
-### 2. Trimming
-
-Trimmomatic parameters are listed under [Commands](#commands). Reads surviving as pairs / unpaired: _add from the Trimmomatic log._ Post-trim FastQC findings: _add (per-base quality, overrepresented sequences, adapter content)._
-
-### 3. Mapping and BAM QC
-
-| Metric | Result |
-|---|---|
-| Total reads (incl. supplementary) | 1,973,026 |
-| Primary reads | 1,951,846 |
-| Mapped reads | 1,474,518 |
-| Mapping rate | 74.73% |
-| Primary mapped | 74.46% |
-| Properly paired | 73.95% |
-| Supplementary alignments | 21,180 |
-| Singletons | 4,092 (0.21%) |
-| Mean depth | 60.09x |
-| Reference covered | 86.04% |
-| Zero-coverage bases | 647,951 |
-| Mean mapping quality | 59 |
-| Mean base quality | 36.9 |
-
-QC files: [`mapping/qc/`](mapping/qc/).
-
-### 4. Duplicate marking (Picard MarkDuplicates)
-
-| Metric | Result |
-|---|---|
-| Read pairs examined | 724,623 |
-| Unpaired reads examined | 4,092 |
-| Read-pair duplicates | 681 |
-| Unpaired-read duplicates | 1,020 |
-| Optical duplicates | 0 |
-| Percent duplication | 0.1639% |
-
-Full metrics: [`mapping/DRR1082025.duplicate_metrics.txt`](mapping/DRR1082025.duplicate_metrics.txt). The flagstat numbers above were generated from the sorted BAM before duplicate marking, so they report 0 duplicates; the Picard metrics are the authoritative duplication figures.
-
-### 5. Variants
-
-_Pending._ Planned reporting: raw and filtered SNP/indel counts, Ts/Tv ratio, filter thresholds, and annotated effects.
-
----
-
-## Open question: low mapping rate
-
-A 74.73% mapping rate with 86% reference coverage is unexpected for reads from the same strain as the reference. Hypotheses to test:
-
-1. The sample is a different *E. coli* strain (or a K-12 derivative with large deletions or insertions) than the metadata indicates.
-2. The sample is mixed or contaminated (consistent with the GC-distribution FAIL).
-3. The run metadata is mislabeled.
-
-Planned checks:
-
-- Confirm organism, strain, and library details in the DDBJ/ENA run record.
-- Extract unmapped reads (`samtools fastq -f 4`), assemble (SPAdes or MEGAHIT), and BLAST the largest contigs, or classify with Kraken2.
-- Intersect zero-coverage regions with the MG1655 annotation (`bedtools genomecov -bga`) to see whether they correspond to prophages or IS elements.
-
-Findings will be added here.
-
----
-
-## Commands
-
-Paths are relative to the project root. Create output directories first (`mkdir -p raw_data trimmed_data qc_reports/pre_trim qc_reports/post_trim mapping/qc variants reference`).
-
-### 1. Download data and reference
-
-```bash
-prefetch DRR1082025
-fasterq-dump --split-files -O raw_data DRR1082025
-gzip raw_data/DRR1082025_*.fastq
-
-# Reference (Entrez Direct)
-efetch -db nuccore -id NC_000913.3 -format fasta > reference/reference.fasta
+```text
+Paired-End Sequencing Data
+          |
+          v
+   Raw FASTQ Files
+          |
+          v
+   Initial Quality Control (FastQC, MultiQC)
+          |
+          v
+   Read Trimming (Trimmomatic)
+          |
+          v
+   Post-Trimming Quality Control (FastQC, MultiQC)
+          |
+          v
+   Reference Genome Preparation
+          |
+          v
+   Read Mapping (BWA)
+          |
+          v
+   SAM/BAM Processing, Sorting, Indexing (SAMtools)
+          |
+          v
+   Duplicate Marking and Alignment QC
+          |
+          v
+   Variant Calling (GATK)
+          |
+          v
+   GVCF and Genotyped VCF
+          |
+          v
+   Variant Summary and QC
+          |
+          v
+   Variant Annotation (SnpEff, corrected GFF3)
+          |
+          v
+   Variant Prioritization
+          |
+          v
+   IGV Visual Validation
+          |
+          v
+   Biological Interpretation
 ```
 
-### 2. FastQC (pre-trim)
+## Project Directory Structure
 
-```bash
-fastqc -o qc_reports/pre_trim \
-  raw_data/DRR1082025_1.fastq.gz raw_data/DRR1082025_2.fastq.gz
-```
-
-### 3. Trimmomatic
-
-```bash
-trimmomatic PE -threads 4 \
-  raw_data/DRR1082025_1.fastq.gz \
-  raw_data/DRR1082025_2.fastq.gz \
-  trimmed_data/DRR1082025_1_paired.fastq.gz \
-  trimmed_data/DRR1082025_1_unpaired.fastq.gz \
-  trimmed_data/DRR1082025_2_paired.fastq.gz \
-  trimmed_data/DRR1082025_2_unpaired.fastq.gz \
-  ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 \
-  LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36
-```
-
-### 4. FastQC (post-trim)
-
-```bash
-fastqc -o qc_reports/post_trim \
-  trimmed_data/DRR1082025_1_paired.fastq.gz \
-  trimmed_data/DRR1082025_2_paired.fastq.gz
-```
-
-### 5. Reference indexing
-
-```bash
-bwa index reference/reference.fasta
-samtools faidx reference/reference.fasta
-gatk CreateSequenceDictionary -R reference/reference.fasta
-```
-
-### 6. Mapping with read groups
-
-```bash
-bwa mem -t 4 \
-  -R '@RG\tID:DRR1082025\tSM:DRR1082025\tLB:Lib1\tPL:ILLUMINA\tPU:DRR1082025' \
-  reference/reference.fasta \
-  trimmed_data/DRR1082025_1_paired.fastq.gz \
-  trimmed_data/DRR1082025_2_paired.fastq.gz \
-  > mapping/DRR1082025.sam
-```
-
-### 7. SAM to sorted, indexed BAM
-
-```bash
-samtools view -@ 4 -b mapping/DRR1082025.sam > mapping/DRR1082025.bam
-samtools sort -@ 4 -o mapping/DRR1082025.sorted.bam mapping/DRR1082025.bam
-samtools index mapping/DRR1082025.sorted.bam
-```
-
-### 8. Mark duplicates
-
-```bash
-gatk MarkDuplicates \
-  -I mapping/DRR1082025.sorted.bam \
-  -O mapping/DRR1082025.markdup.bam \
-  -M mapping/DRR1082025.duplicate_metrics.txt
-
-samtools index mapping/DRR1082025.markdup.bam
-```
-
-### 9. BAM QC
-
-```bash
-samtools flagstat mapping/DRR1082025.markdup.bam > mapping/qc/DRR1082025.flagstat.txt
-samtools stats    mapping/DRR1082025.markdup.bam > mapping/qc/DRR1082025.stats.txt
-samtools idxstats mapping/DRR1082025.markdup.bam > mapping/qc/idxstats.txt
-samtools coverage mapping/DRR1082025.markdup.bam > mapping/qc/coverage.txt
-```
-
-### 10. Variant calling (GATK)
-
-```bash
-gatk HaplotypeCaller \
-  -R reference/reference.fasta \
-  -I mapping/DRR1082025.markdup.bam \
-  -O variants/DRR1082025.g.vcf.gz \
-  -ERC GVCF
-
-gatk GenotypeGVCFs \
-  -R reference/reference.fasta \
-  -V variants/DRR1082025.g.vcf.gz \
-  -O variants/DRR1082025.vcf.gz
-```
-
-> **Note:** bacteria are haploid. The first run used GATK's default (diploid) ploidy; the re-run adds `-ploidy 1` to both commands (see next steps).
-
-### 11. Inspect in IGV
-
-Load together: `reference/reference.fasta`, `mapping/DRR1082025.markdup.bam` (with its `.bai`), and `variants/DRR1082025.vcf.gz`. Check read pileups, mismatches, mapping quality, strand balance, and SNP/indel calls.
-
----
-
-## Repository structure
-
-```
-ngs-project/
+```text
+ngs/
+├── data/
+│   ├── raw_data/
+│   └── trimmed/
+├── envs/
+├── ERR008613/
 ├── mapping/
-│   ├── DRR1082025.duplicate_metrics.txt
-│   └── qc/                 # flagstat, stats, idxstats, coverage, zero-coverage regions
-├── qc_reports/
-│   ├── pre_trim/
-│   └── post_trim/
-├── reference/              # reference.fasta, .fai, .dict
-├── variants/               # indexes now; filtered VCF to be added
-├── pre_trim_notes.md       # interpretation of raw-read FastQC
-├── .gitignore
-└── README.md
-```
-
----
-
-## Limitations and next steps
-
-- [ ] Resolve the low mapping rate (see [Open question](#open-question-low-mapping-rate)).
-- [ ] Re-run variant calling with `-ploidy 1` in both `HaplotypeCaller` and `GenotypeGVCFs`.
-- [ ] Apply hard filters (`gatk VariantFiltration`), document thresholds, and report SNP/indel counts and Ts/Tv (`bcftools stats`).
-- [ ] Annotate variants (e.g. SnpEff) and add an IGV screenshot of a representative variant.
-- [ ] Cross-check calls with a second caller (bcftools or Snippy) and report concordance.
-- [ ] Add `environment.yml` and a Snakemake workflow for one-command reproduction.
-- [ ] Commit the small filtered VCF.
-
----
-
-## Author
-
-Musaddique Mubin Nabil
-Microbiology | Bioinformatics | Computational Genomics# NGS Read Mapping & Variant Calling
-
-A practical bacterial NGS bioinformatics project using Illumina sequencing data to perform quality control, read trimming, reference-based read mapping, BAM processing, GATK variant calling, variant QC/filtering, and genome-browser visualization.
-
-## Workflow
-
-```text
-SRA
- ↓
-FASTQ
- ↓
-FastQC → Trimmomatic → FastQC
- ↓
-BWA-MEM
- ↓
-SAM → BAM → sorted BAM
- ↓
-Read Groups → MarkDuplicates → BAM QC
- ↓
-Reference indexing (.fai + .dict)
- ↓
-GATK HaplotypeCaller
- ↓
-GVCF → GenotypeGVCFs → VCF
- ↓
-Variant QC / Filtering
- ↓
-IGV visualization
-```
-
-## Dataset
-
-| Field | Details |
-|---|---|
-| SRA dataset | **DRR1082025** |
-| Organism | *Escherichia coli* |
-| Strain / substrain | **K-12 substr. MG1655** |
-| Reference genome | **NC_000913.3** |
-| Reference size | **4,641,652 bp** |
-| Sequencing platform | Illumina |
-| Read layout | Paired-end |
-| Data source | NCBI SRA |
-
-The reference accession **NC_000913.3** is the complete genome of *Escherichia coli* str. K-12 substr. MG1655. citeturn0search0turn0search7
-
-> **Organism naming correction:** use **“*Escherichia coli* str. K-12 substr. MG1655”** rather than only “*E. coli* K-12” when documenting the reference genome. This makes the strain/substrain information explicit.
-
-Large FASTQ, SAM, BAM, GVCF, and VCF data files are excluded from the repository where appropriate; small QC/index files and reports are retained.
-
-## Results
-
-### 1. Raw-read QC
-
-| Metric | R1 | R2 |
-|---|---:|---:|
-| Reads | 1,066,446 | 1,066,446 |
-| Reported sequence length | 35–301 bp | 35–301 bp |
-| Per-base sequence quality | WARN | FAIL |
-| Adapter Content | PASS | PASS |
-| Per-sequence GC Content | FAIL | FAIL |
-| Approx. GC content | ~50% | ~50% |
-
-The raw reads showed the main QC issues documented in `pre_trim_notes.md`: poorer per-base quality in R2, localized tile-specific quality problems, GC-distribution warnings, and overrepresented technical sequences.
-
-### 2. Mapping and BAM QC
-
-| Metric | Result |
-|---|---:|
-| Total reads | 1,973,026 |
-| Primary reads | 1,951,846 |
-| Mapped reads | 1,474,518 |
-| Mapping rate | **74.73%** |
-| Primary mapped | **74.46%** |
-| Properly paired | **73.95%** |
-| Secondary alignments | 0 |
-| Supplementary alignments | 21,180 |
-| Singletons | 4,092 (0.21%) |
-| Duplicate reads after MarkDuplicates | 0 |
-| Mean depth | **60.09×** |
-| Reference covered | **86.04%** |
-| Mean mapping quality | 59 |
-| Mean base quality | 36.9 |
-| Zero-coverage bases | 647,951 |
-
-The mapping QC files in the repository record the above values. The reference sequence is NC_000913.3.
-
-### 3. Duplicate-marking metrics
-
-Picard/GATK MarkDuplicates reported:
-
-| Metric | Result |
-|---|---:|
-| Read pairs examined | 724,623 |
-| Unpaired reads examined | 4,092 |
-| Read-pair duplicates | 681 |
-| Unpaired read duplicates | 1,020 |
-| Optical duplicates | 0 |
-| Percent duplication | **0.1639%** |
-| Estimated library size | 385,278,606 |
-
-Note that the `flagstat` result reports **0 duplicates** because duplicate marking was performed on the processed BAM used for that QC snapshot; the separate MarkDuplicates metrics file records the duplicate reads identified by Picard. The two files therefore should not be interpreted as identical measurements.
-
-## Commands
-
-The following commands document the command-line workflow used for this project. File names can be adjusted to match the local working directory.
-
-### 1. FastQC — pre-trimming
-
-```bash
-fastqc -o qc_reports/pre_trim raw_data/DRR1082025_1.fastq.gz raw_data/DRR1082025_2.fastq.gz
-```
-
-### 2. Trimmomatic — paired-end trimming
-
-```trimmomatic PE -threads 4 \
-  raw_data/DRR1082025_1.fastq.gz \
-  raw_data/DRR1082025_2.fastq.gz \
-  trimmed_data/DRR1082025_1_paired.fastq.gz \
-  trimmed_data/DRR1082025_1_unpaired.fastq.gz \
-  trimmed_data/DRR1082025_2_paired.fastq.gz \
-  trimmed_data/DRR1082025_2_unpaired.fastq.gz \
-  ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 \
-  LEADING:3 TRAILING:3 SLIDINGWINDOW:4:20 MINLEN:36
-```
-
-### 3. FastQC — post-trimming
-
-```fastqc -o qc_reports/post_trim \
-  trimmed_data/DRR1082025_1_paired.fastq.gz \
-  trimmed_data/DRR1082025_2_paired.fastq.gz
-```
-
-### 4. BWA reference indexing
-
-```bash
-bwa index reference/reference.fasta
-```
-
-### 5. BWA-MEM read mapping with read groups
-
-```bash
-bwa mem -t 4 \
-  -R '@RG\tID:DRR1082025\tSM:DRR1082025\tLB:Lib1\tPL:ILLUMINA\tPU:DRR1082025' \
-  reference/reference.fasta \
-  trimmed_data/DRR1082025_1_paired.fastq.gz \
-  trimmed_data/DRR1082025_2_paired.fastq.gz \
-  > mapping/DRR1082025.sam
-```
-
-### 6. SAM → BAM → sorted BAM
-
-```bash
-samtools view -@ 4 -b mapping/DRR1082025.sam > mapping/DRR1082025.bam
-
-samtools sort -@ 4 \
-  -o mapping/DRR1082025.sorted.bam \
-  mapping/DRR1082025.bam
-
-samtools index mapping/DRR1082025.sorted.bam
-```
-
-### 7. Reference indexes required by GATK
-
-```bash
-samtools faidx reference/reference.fasta
-
-gatk CreateSequenceDictionary \
-  -R reference/reference.fasta
-```
-
-This produces:
-
-```text
-reference.fasta
-reference.fasta.fai
-reference.dict
-```
-
-### 8. BAM QC
-
-```bash
-samtools flagstat mapping/DRR1082025.sorted.bam
-
-samtools stats mapping/DRR1082025.sorted.bam \
-  > mapping/qc/DRR1082025.stats.txt
-
-samtools idxstats mapping/DRR1082025.sorted.bam \
-  > mapping/qc/idxstats.txt
-
-samtools coverage mapping/DRR1082025.sorted.bam \
-  > mapping/qc/coverage.txt
-```
-
-### 9. Mark duplicates
-
-```gatk MarkDuplicates \
-  -I mapping/DRR1082025.rg.bam \
-  -O mapping/DRR1082025.markdup.bam \
-  -M mapping/DRR1082025.duplicate_metrics.txt
-```
-
-Then index the resulting BAM:
-
-```bash
-samtools index mapping/DRR1082025.markdup.bam
-```
-
-### 10. GATK HaplotypeCaller
-
-```bash
-gatk HaplotypeCaller \
-  -R reference/reference.fasta \
-  -I mapping/DRR1082025.markdup.bam \
-  -O variants/DRR1082025.g.vcf.gz \
-  -ERC GVCF
-```
-
-### 11. GenotypeGVCFs
-
-```bash
-gatk GenotypeGVCFs \
-  -R reference/reference.fasta \
-  -V variants/DRR1082025.g.vcf.gz \
-  -O variants/DRR1082025.vcf.gz
-```
-
-### 12. IGV visualization
-
-Load the following together in IGV:
-
-```text
-reference/reference.fasta
-mapping/DRR1082025.markdup.bam
-mapping/DRR1082025.markdup.bam.bai
-variants/DRR1082025.vcf.gz
-```
-
-Inspect read pileups, coverage, mismatches, mapping quality, strand distribution, SNPs, and indels.
-
-## Repository Structure
-
-```text
-ngs-project/
-├── mapping/
-│   ├── DRR1082025.duplicate_metrics.txt
-│   └── qc/
-│       ├── DRR1082025.flagstat.txt
-│       ├── DRR1082025.mapping_QC.txt
-│       ├── DRR1082025.stats.txt
-│       ├── DRR1082025.zero_coverage_regions.txt
-│       ├── coverage.txt
-│       └── idxstats.txt
 ├── qc_reports/
 │   ├── pre_trim/
 │   └── post_trim/
 ├── reference/
-│   ├── reference.fasta
-│   ├── reference.fasta.fai
-│   └── reference.dict
 ├── variants/
-│   ├── DRR1082025.g.vcf.gz.tbi
-│   └── DRR1082025.vcf.gz.tbi
-├── pre_trim_notes.md
-├── .gitignore
-└── README.md
+└── interpretation/
+    ├── 01_variant_summary/
+    ├── 02_variant_annotation/
+    ├── 03_variant_prioritization/
+    └── 04_biological_interpretation/
 ```
 
-## Learning Goals
+### Directory Description
 
-* NGS quality control
-* Read trimming
-* Reference-based mapping
-* SAM/BAM processing
-* Read groups
-* Duplicate marking
-* GATK reference preparation
-* GATK HaplotypeCaller
-* GVCF and VCF analysis
-* Variant filtering
-* IGV visualization
-* Reproducible command-line bioinformatics
+| Directory | Purpose |
+|---|---|
+| `data/raw_data/` | Original paired-end FASTQ reads |
+| `data/trimmed/` | Paired and unpaired reads generated after trimming |
+| `envs/` | Conda environment specifications |
+| `ERR008613/` | Original SRA dataset |
+| `mapping/` | Alignment files, indexes, and mapping statistics |
+| `qc_reports/pre_trim/` | Quality-control results before trimming |
+| `qc_reports/post_trim/` | Quality-control results after trimming |
+| `reference/` | Reference genome, corrected annotation files, and alignment indexes |
+| `variants/` | GVCF and genotyped VCF files |
+| `interpretation/01_variant_summary/` | Variant counts, genotype summaries, quality summaries, and plots |
+| `interpretation/02_variant_annotation/` | SnpEff annotations and gene-level consequence summaries |
+| `interpretation/03_variant_prioritization/` | Prioritized variants, candidate genes, and IGV validation records |
+| `interpretation/04_biological_interpretation/` | Functional summaries, figures, and interpretation reports |
 
-## Status
+## Dataset and Reference Genome
 
-**Learning / Portfolio Project**
+### Sequencing dataset
 
-Built to develop practical skills in bacterial NGS analysis and computational genomics.
+- **Run accession:** `ERR008613`
+- **Data type:** Paired-end sequencing reads
+- **Raw read files:**
+  - `data/raw_data/ERR008613_1.fastq`
+  - `data/raw_data/ERR008613_2.fastq`
+- **Original SRA file:** `ERR008613/ERR008613.sra`
+
+### Reference genome
+
+- **Organism:** *Escherichia coli*
+- **Reference strain:** K-12 substrain MG1655
+- **Reference accession:** `NC_000913.3`
+- **Reference genome length:** Approximately 4.64 Mb
+- **Reference FASTA:** `reference/reference.fasta`
+- **Reference annotation (corrected):** `reference/NC_000913.3_Ecoli_MG1655.gff3`
+- **GenBank annotation:** `reference/NC_000913.3_Ecoli_MG1655.gb`
+
+The reference FASTA is indexed for alignment and downstream analysis. The reference sequence and annotation must remain consistent throughout mapping, variant calling, and annotation.
+
+**Annotation correction:** The original GFF3 contained an error that affected annotation. The corrected GFF3 was used to rebuild the SnpEff database and regenerate all downstream annotation outputs. Any output generated before this correction should not be used.
+
+**Reference limitation:** Using a reference genome from a different strain or lineage can introduce mapping bias and affect variant interpretation. Reference suitability should be evaluated in the context of the sample's organism and strain.
+
+## Analysis Stages
+
+### 1. Raw Read Quality Control
+
+**Tools:** FastQC and MultiQC
+
+Raw reads are assessed for sequencing quality and potential technical problems before trimming (per-base quality, per-sequence quality, GC content, adapter content, duplication, length distribution, ambiguous bases).
+
+```text
+qc_reports/pre_trim/
+├── ERR008613_1_fastqc.html
+├── ERR008613_2_fastqc.html
+└── multiqc_report.html
+```
+
+### 2. Read Trimming
+
+**Tool:** Trimmomatic
+
+Adapter sequences and low-quality bases are removed. The output contains paired reads that survive trimming together and unpaired reads whose mates do not both survive.
+
+```text
+data/trimmed/
+├── ERR008613_R1_paired.fastq
+├── ERR008613_R2_paired.fastq
+├── ERR008613_R1_unpaired.fastq
+└── ERR008613_R2_unpaired.fastq
+```
+
+Compressed copies of the trimmed FASTQ files are also present.
+
+### 3. Post-Trimming Quality Control
+
+**Tools:** FastQC and MultiQC
+
+```text
+qc_reports/post_trim/
+├── ERR008613_R1_paired_fastqc.html
+├── ERR008613_R2_paired_fastqc.html
+└── multiqc_report.html
+```
+
+Compare pre- and post-trimming reports to assess changes in read quality, adapter contamination, read length, and retained data.
+
+### 4. Reference-Based Read Mapping
+
+**Tool:** BWA
+
+```text
+reference/reference.fasta (+ .bwt, .amb, .ann, .pac, .sa)
+
+mapping/
+├── ERR008613.sam
+├── ERR008613.bam
+├── ERR008613.rg.bam
+├── ERR008613.sorted.bam / .bai
+├── ERR008613.markdup.bam / .bai
+├── ERR008613_flagstats.txt
+├── ERR008613_idxstats.txt
+└── ERR008613.duplicate_metrics.txt
+```
+
+Mapping statistics should be reviewed to determine how many reads align and whether coverage is adequate for variant calling.
+
+### 5. Variant Calling and Genotyping
+
+**Tool:** GATK
+
+```text
+variants/
+├── ERR008613.g.vcf.gz (+ .tbi)
+├── ERR008613.haploid.vcf.gz (+ .tbi)
+└── ERR008613.haploid_genotyped.vcf.gz (+ .tbi)
+```
+
+- **GVCF:** Variant-calling and reference-confidence information used in downstream genotyping.
+- **Haploid VCF:** Calls produced in the haploid-calling workflow.
+- **Haploid genotyped VCF:** Genotyped records used for downstream analysis.
+
+Bacterial isolates are generally analyzed as haploid, so ploidy assumptions must match the variant-calling configuration. The exact distinction between these files should be confirmed from the commands and parameters used to generate them.
+
+## Variant Interpretation
+
+### Stage 1: Variant Summary and Quality Assessment
+
+**Directory:** `interpretation/01_variant_summary/`
+
+| File | Purpose |
+|---|---|
+| `variant_counts.tsv` | Overall variant counts |
+| `variant_types.tsv` | Counts of variant categories |
+| `quality_summary.tsv` | Summary of variant-quality metrics |
+| `genotype_summary.tsv` | Sample-level genotype summary |
+| `genotype_summary_per_sample.tsv` | Genotype summaries by sample |
+| `titv_summary.tsv` | Transition/transversion summary |
+| `run_variant_summary.sh` | Script for generating summary outputs |
+
+Figures are in `variant_summary_figures/` (`depth_distribution.png`, `qual_distribution.png`, `quality_summary.png`, `variant_counts.png`, `variant_types.png`).
+
+A record that lacks a filter label is not automatically equivalent to a record that passed a validated quality-filtering procedure. Interpret results in light of the filters actually applied.
+
+### Stage 2: Variant Annotation
+
+**Directory:** `interpretation/02_variant_annotation/`
+**Tool:** SnpEff (database built from the corrected GFF3)
+
+| File | Purpose |
+|---|---|
+| `ERR008613.annotated.vcf` | VCF containing SnpEff annotation |
+| `annotated_variants.tsv` | Tabular variant-level annotation |
+| `gene_effects.tsv` | Gene-level counts of annotated consequences |
+| `snpEff_summary.csv` | Machine-readable annotation summary |
+| `snpEff_summary.html` | HTML annotation report |
+| `snpEff_summary.genes.txt` | Gene-oriented annotation summary |
+| `snpEff_ann.log` | Annotation execution log |
+| `make_annotation_tables.py` | Script for generating annotation tables |
+
+The custom SnpEff database is stored under `interpretation/02_variant_annotation/snpeff_data/`.
+
+**Final annotation result:** 10 annotation rows: 9 `downstream_gene_variant` and 1 `intergenic_region`, all with MODIFIER impact. No coding consequences (synonymous, missense, stop-gained, frameshift) were predicted.
+
+Predicted consequences describe possible molecular effects. They do not by themselves prove altered gene function or a change in phenotype.
+
+### Stage 3: Variant Prioritization and IGV Validation
+
+**Directory:** `interpretation/03_variant_prioritization/`
+
+| File | Purpose |
+|---|---|
+| `02_prioritize.sh` | Variant-prioritization workflow script |
+| `high_impact_candidates.tsv` | Variants classified as high-impact by the workflow |
+| `modifier_variants.tsv` | Variants assigned a MODIFIER consequence category |
+| `candidate_gene_interpretation.tsv` | Candidate-gene interpretation table |
+| `prioritization_notes.md` | Notes describing the prioritization approach |
+
+Because no HIGH-impact consequences were predicted, `high_impact_candidates.tsv` is not expected to contain candidates; the MODIFIER variants are the relevant set.
+
+#### IGV validation
+
+```text
+igv_validation/
+├── igv_validation.tsv
+└── screenshots/
+    └── NC_000913_3_4296380.png
+```
+
+IGV allows visual inspection of reads around the candidate insertion at `NC_000913.3:4296380`. Review should assess read support, local depth, allele consistency, and possible alignment artifacts near repetitive or complex sequence.
+
+**Status:** Validation of this candidate is unresolved. An IGV screenshot is supporting evidence for visual review, not independent proof that a variant is real or biologically meaningful.
+
+### Stage 4: Biological Interpretation
+
+**Directory:** `interpretation/04_biological_interpretation/`
+
+| File | Purpose |
+|---|---|
+| `functional_summary.tsv` | Tabular summary of predicted functional consequences |
+| `biological_findings.md` | Summary of the biological findings |
+| `interpretation_report.md` | Consolidated interpretation report |
+| `create_04_biological_interpretation.sh` | Script for generating interpretation outputs |
+| `plot_functional_summary.py` | Script for creating functional-summary plots |
+
+**Figures** (`interpretation/04_biological_interpretation/figures/`):
+
+| Figure | Description |
+|---|---|
+| `01_annotation_consequence_counts.png` | Preliminary annotation consequence counts: 9 `downstream_gene_variant`, 1 `intergenic_region` (rows, not unique variants) |
+| `02_annotation_impact_distribution.png` | Predicted impact of annotation rows: HIGH 0, MODERATE 0, LOW 0, MODIFIER 10, UNKNOWN 0 |
+| `03_candidate_insertion_position.png` | Position of the candidate insertion `NC_000913.3:4296380`, `A -> ACG`, marked preliminary with validation unresolved |
+
+The interpretation should distinguish between:
+
+1. **Observed evidence:** Sequencing reads, called variants, and measured quality metrics.
+2. **Computational predictions:** Annotated consequences and predicted molecular effects.
+3. **Biological hypotheses:** Possible effects on genes, pathways, or phenotypes that require further evidence.
+4. **Validated conclusions:** Claims supported by independent evidence such as experiments, reliable phenotype data, or appropriate comparative analyses.
+
+If antimicrobial resistance is investigated, variant annotations alone are insufficient to establish resistance. Resistance claims require genotype–phenotype evidence, validated resistance determinants, and/or phenotypic susceptibility results.
+
+## Software and Environments
+
+```text
+envs/
+├── ngs-qc.yml
+└── snpeff-env.from-history.yml
+```
+
+- **FastQC / MultiQC:** Read quality assessment and report aggregation
+- **Trimmomatic:** Read trimming
+- **BWA:** Reference-based alignment
+- **SAMtools:** Alignment processing, indexing, statistics
+- **GATK:** Variant calling and genotyping
+- **BCFtools:** VCF inspection and processing
+- **SnpEff:** Variant consequence annotation
+- **IGV:** Visual inspection of candidate variants
+- **Python / Bash:** Table and figure generation, workflow automation
+
+Exact software versions and parameters should be recorded for reproducibility.
+
+## Reproducing the Environment
+
+```bash
+conda env create -f envs/ngs-qc.yml
+conda activate ngs-qc
+
+conda env create -f envs/snpeff-env.from-history.yml
+conda activate snpeff-env
+```
+
+If an environment already exists, activate it instead of creating a duplicate. Environment specifications may depend on package availability, operating-system compatibility, and the channels used when the files were created.
+
+## Running the Analysis
+
+Run commands from the project root:
+
+```bash
+cd "/run/media/nabil2004/New Volume/Nabil project/ngs"
+```
+
+```bash
+# Generate variant-summary outputs
+bash interpretation/01_variant_summary/run_variant_summary.sh
+
+# Generate prioritized variant outputs
+bash interpretation/03_variant_prioritization/02_prioritize.sh
+
+# Generate biological interpretation outputs
+bash interpretation/04_biological_interpretation/create_04_biological_interpretation.sh
+```
+
+Before running these scripts, check their input paths, environment requirements, and parameters. Re-running a script may overwrite existing outputs. If the GFF3 is changed again, rebuild the SnpEff database and re-run annotation, prioritization, and interpretation so all outputs stay consistent.
+
+## Recommended Quality and Interpretation Checks
+
+- [ ] Raw-read and post-trimming quality reports have been reviewed.
+- [ ] Trimming parameters and retained read counts are documented.
+- [ ] Mapping rate, coverage, and alignment quality have been assessed.
+- [ ] The reference genome and (corrected) annotation use matching sequence identifiers.
+- [ ] Variant calling and genotyping use appropriate ploidy settings.
+- [ ] VCF records and variant categories were counted consistently.
+- [ ] Variant-quality fields and filter status were interpreted correctly.
+- [ ] SnpEff annotations were regenerated from the corrected GFF3.
+- [ ] The candidate insertion at 4296380 has been reviewed in IGV and its validation resolved.
+- [ ] Biological claims are separated from computational predictions.
+- [ ] Software versions, scripts, and parameters are recorded.
 
 ## Limitations
 
-- **Ploidy:** GATK HaplotypeCaller was run with its default diploid
-  setting, although bacteria are haploid. As a result, 1,707 variants
-  (1.6%) were called as heterozygous (0/1, 0|1) and 144 as multi-allelic
-  (1/2, 1|2). These are not true heterozygosity; they likely come from
-  repetitive regions (IS elements, rRNA operons) or misaligned reads.
-  The remaining 98.4% are homozygous alternate calls, as expected for a
-  haploid genome. Future runs should use `--sample-ploidy 1`.
-- **Filtering:** The VCF is unfiltered (FILTER = . for all 106,801 records).
-- **Reference:** Reads were mapped to E. coli K-12 MG1655, which is ~97%
-  similar to this clinical isolate. Mapping rate was 74.73%, so the
-  accessory genome (e.g. resistance genes) is not captured.
-  
-## Author
+- Reference bias and imperfect reference-strain matching
+- Low-coverage or poorly mapped regions
+- Repetitive sequences and ambiguous alignments
+- False-positive and false-negative variant calls
+- Limitations of automated consequence annotation
+- Annotation errors caused by reference or GFF inconsistencies (one such error was found and corrected in this project)
+- Very small final variant set (10 annotation rows), so conclusions are limited
+- Candidate insertion not yet validated
+- No independent experimental validation
 
-**Musaddique Mubin Nabil**
+The workflow does not, by itself, demonstrate causality, pathogenicity, or antimicrobial resistance.
 
-Microbiology | Bioinformatics | Computational Genomics
+## Future Improvements
 
+- Resolve validation of the candidate insertion (IGV review, read support, strand balance)
+- Reproducible end-to-end workflow using Snakemake or Nextflow
+- Automated collection of software versions and parameters
+- Coverage summaries and genome-wide coverage visualization
+- More comprehensive variant filtering and sensitivity analysis
+- Comparative genomics with closely related isolate genomes
+- Comparison with curated antimicrobial-resistance databases when relevant
+- Version control for scripts, documentation, and configuration
 
+## Project Status
+
+Outputs exist for quality control, read mapping, variant calling, variant summary, annotation (corrected GFF3), prioritization, IGV inspection, and biological interpretation. The existence of an output file does not by itself establish that a stage has passed validation. The current candidate variant remains **preliminary**.
+
+## Acknowledgements
+
+This workflow uses established open-source bioinformatics tools. Please cite the relevant software publications and databases in any formal report, thesis, or manuscript.
+
+---
+
+**Project:** Bacterial NGS Reference-Based Variant Analysis
+**Sample/run:** `ERR008613`
+**Reference:** *Escherichia coli* K-12 MG1655 (`NC_000913.3`)
+**Primary outputs:** Variant summaries, annotated variants, candidate prioritization, IGV evidence, and biological interpretation reports

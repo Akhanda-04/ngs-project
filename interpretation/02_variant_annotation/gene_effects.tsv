@@ -1,0 +1,10 @@
+GENE_ID	GENE_NAME	GENE_PRODUCT	GENE_START	GENE_END	GENE_STRAND	VARIANT_COUNT	SYNONYMOUS_COUNT	MISSENSE_COUNT	STOP_GAINED_COUNT	FRAMESHIFT_COUNT	NONCODING_VARIANT_COUNT	PREDICTED_EFFECT_SUMMARY
+gene-b4073	nrfD	putative menaquinol-cytochrome c reductase subunit NrfD	4290476	4291432	+	1	0	0	0	0	1	noncoding=1
+gene-b4074	nrfE	putative cytochrome c-type biogenesis protein NrfE	4291512	4293170	+	1	0	0	0	0	1	noncoding=1
+gene-b4075	nrfF	putative formate-dependent nitrite reductase complex subunit NrfF	4293163	4293546	+	1	0	0	0	0	1	noncoding=1
+gene-b4076	nrfG	putative formate-dependent nitrite reductase complex subunit NrfG	4293543	4294139	+	1	0	0	0	0	1	noncoding=1
+gene-b4077	gltP	glutamate/aspartate : H(+) symporter GltP	4294481	4295794	+	1	0	0	0	0	1	noncoding=1
+gene-b4078	yjcO	Sel1 repeat-containing protein YjcO	4296436	4297125	-	1	0	0	0	0	1	noncoding=1
+gene-b4079	fdhF	formate dehydrogenase H	4297219	4299366	-	1	0	0	0	0	1	noncoding=1
+gene-b4080	mdtP	putative multidrug efflux pump outer membrane channel	4299564	4301030	-	1	0	0	0	0	1	noncoding=1
+gene-b4081	mdtO	putative multidrug efflux pump subunit MdtO	4301027	4303078	-	1	0	0	0	0	1	noncoding=1

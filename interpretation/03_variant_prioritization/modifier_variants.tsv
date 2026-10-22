@@ -1,0 +1,11 @@
+CHROM	POS	REF	ALT	QUAL	FILTER	DP	GT	GENE	GENE_ID	EFFECT	IMPACT	HGVS_c	HGVS_p
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	nrfD	gene-b4073	downstream_gene_variant	MODIFIER	c.*4948_*4949insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	nrfE	gene-b4074	downstream_gene_variant	MODIFIER	c.*3210_*3211insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	nrfF	gene-b4075	downstream_gene_variant	MODIFIER	c.*2834_*2835insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	nrfG	gene-b4076	downstream_gene_variant	MODIFIER	c.*2241_*2242insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	gltP	gene-b4077	downstream_gene_variant	MODIFIER	c.*586_*587insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	yjcO	gene-b4078	downstream_gene_variant	MODIFIER	c.*55_*56insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	fdhF	gene-b4079	downstream_gene_variant	MODIFIER	c.*838_*839insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	mdtP	gene-b4080	downstream_gene_variant	MODIFIER	c.*3183_*3184insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	mdtO	gene-b4081	downstream_gene_variant	MODIFIER	c.*4646_*4647insCG	
+NC_000913.3	4296380	A	ACG	14798.01	.	356	1	gltP-yjcO	gene-b4077-gene-b4078	intergenic_region	MODIFIER	n.4296380_4296381insCG	

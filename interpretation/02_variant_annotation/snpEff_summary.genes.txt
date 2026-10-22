@@ -1,0 +1,11 @@
+# The following table is formatted as tab separated values. 
+#GeneName	GeneId	TranscriptId	BioType	variants_impact_MODIFIER	variants_effect_downstream_gene_variant
+fdhF	gene-b4079	TRANSCRIPT_gene-b4079	protein_coding	1	1
+gltP	gene-b4077	TRANSCRIPT_gene-b4077	protein_coding	1	1
+mdtO	gene-b4081	TRANSCRIPT_gene-b4081	protein_coding	1	1
+mdtP	gene-b4080	TRANSCRIPT_gene-b4080	protein_coding	1	1
+nrfD	gene-b4073	TRANSCRIPT_gene-b4073	protein_coding	1	1
+nrfE	gene-b4074	TRANSCRIPT_gene-b4074	protein_coding	1	1
+nrfF	gene-b4075	TRANSCRIPT_gene-b4075	protein_coding	1	1
+nrfG	gene-b4076	TRANSCRIPT_gene-b4076	protein_coding	1	1
+yjcO	gene-b4078	TRANSCRIPT_gene-b4078	protein_coding	1	1

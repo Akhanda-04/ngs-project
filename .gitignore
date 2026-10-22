@@ -53,3 +53,14 @@ __pycache__/
 *.log
 *.tmp
 *.temp
+
+# extra
+*.tbi
+*.csi
+ERR008613/
+data/
+mapping/*.sam
+**/multiqc_data/*.parquet
+**/multiqc_data/llms-full.txt
+interpretation/**/snpeff_data/data/*/sequence*.bin
+interpretation/**/snpeff_data/data/*/snpEffectPredictor.bin

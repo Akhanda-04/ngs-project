@@ -1,6 +1,6 @@
-variant_type	count	percentage
-SNP	103256	96.55%
-INS	1812	1.69%
-DEL	1785	1.67%
-MNV	8	0.01%
-OTHER	84	0.08%
+Variant_Type	Count	Percentage
+SNP	0	0.00
+INS	1	100.00
+DEL	0	0.00
+MNV	0	0.00
+OTHER	0	0.00

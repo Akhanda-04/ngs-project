@@ -1,0 +1,9 @@
+name: snpeff-env
+channels:
+  - bioconda
+dependencies:
+  - bcftools
+  - snpeff
+  - snpsift
+
+prefix: "/home/nabil2004/miniforge3/envs/snpeff-env"

@@ -1,16 +1,6 @@
-Metric	Count
-Sample	DRR1082025
-Total genotype records	106801
-Fully called genotypes	106801
-Missing genotypes (including partial missing)	0
-Reference genotypes (all alleles 0)	0
-Non-reference genotypes (fully called)	106801
-Haploid reference calls (0)	0
-Haploid alternate calls (nonzero allele)	0
-Diploid heterozygous calls	1707
-Diploid homozygous reference calls (0/0 or 0|0)	0
-Diploid homozygous alternate calls	105094
-Partial missing genotypes	0
-Haploid-format genotype records	0
-Diploid-format genotype records	106801
-Other-ploidy genotype records	0
+Genotype_Category	Count
+reference	0
+alternate	1
+heterozygous	0
+missing	0
+Total genotype calls	1

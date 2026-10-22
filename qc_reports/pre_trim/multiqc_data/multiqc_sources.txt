@@ -1,0 +1,3 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	ERR008613_1	/run/media/nabil2004/New Volume/Nabil project/bacterial-assembly/qc/pre_trim/ERR008613_1_fastqc.zip
+FastQC	all_sections	ERR008613_2	/run/media/nabil2004/New Volume/Nabil project/bacterial-assembly/qc/pre_trim/ERR008613_2_fastqc.zip

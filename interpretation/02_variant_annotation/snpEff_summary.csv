@@ -1,0 +1,118 @@
+
+# Summary table 
+
+Name , Value
+Genome , ecoli_mg1655 
+Date , 2026-10-21 23:00
+SnpEff_version , SnpEff 5.4c (build 2026-02-23 07:25), by Pablo Cingolani
+Command_line_arguments , SnpEff  -stats interpretation/02_variant_annotation/snpEff_summary.html -csvStats interpretation/02_variant_annotation/snpEff_summary.csv ecoli_mg1655 variants/ERR008613.haploid_genotyped.vcf.gz 
+Warnings , 1 
+Number_of_lines_in_input_file, 1
+Number_of_variants_before_filter, 1
+Number_of_not_variants , 0
+Number_of_variants_processed , 1
+Number_of_known_variants (i.e. non-empty ID) , 0, 0% 
+Number_of_effects , 10 
+Genome_total_length ,4641652 
+Genome_effective_length ,4641652 
+Change_rate , 4641652 
+
+# Change rate by chromosome
+
+Chromosome , Length , Changes , Change_rate 
+NC_000913.3 , 4641652 , 1 , 4641652
+
+# Variantss by type
+
+Type , Count , Percent 
+INS , 1 , 100% 
+
+# Effects by impact
+
+Type , Count , Percent 
+MODIFIER , 10 , 100% 
+
+# Effects by functional class
+
+Type , Count , Percent 
+
+Missense_Silent_ratio, 0
+
+# Count by effects
+
+Type , Count , Percent 
+downstream_gene_variant , 9 , 90% 
+intergenic_region , 1 , 10% 
+
+# Count by genomic region
+
+Type , Count , Percent 
+DOWNSTREAM , 9 , 90% 
+INTERGENIC , 1 , 10% 
+
+# Quality 
+
+Values , 14798
+Count , 1
+
+# InDel lengths
+
+Values , 1
+Count , 1
+
+# Base changes
+
+base  , A  , C  , G  , T 
+ A  , 0  , 0  , 0  , 0 
+ C  , 0  , 0  , 0  , 0 
+ G  , 0  , 0  , 0  , 0 
+ T  , 0  , 0  , 0  , 0 
+
+# Ts/Tv summary
+
+Transitions , 0
+Transversions , 0
+Ts_Tv_ratio , 0
+
+# Ts/Tv : All variants
+
+No results available (empty input?)
+
+# Ts/Tv : Known variants
+
+No results available (empty input?)
+
+# Allele frequency
+
+# Allele frequency : All variants
+
+Values , 50
+Count , 1
+
+# Allele Count
+
+Values , 1
+Count , 1
+
+# Hom/Het table
+
+Sample_names , ERR008613
+Reference , 0
+Het , 1
+Hom , 0
+Missing , 0
+
+
+# Codon change table
+	
+codons 
+
+# Amino acid change table
+
+aa 
+
+# Chromosome change table
+
+NC_000913.3, Position,0,100000,200000,300000,400000,500000,600000,700000,800000,900000,1000000,1100000,1200000,1300000,1400000,1500000,1600000,1700000,1800000,1900000,2000000,2100000,2200000,2300000,2400000,2500000,2600000,2700000,2800000,2900000,3000000,3100000,3200000,3300000,3400000,3500000,3600000,3700000,3800000,3900000,4000000,4100000,4200000,4300000,4400000,4500000,4600000
+NC_000913.3,Count,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0
+

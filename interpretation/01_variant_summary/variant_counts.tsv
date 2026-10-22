@@ -1,9 +1,13 @@
 Metric	Count
-Total variant records	106801
-Records with exactly one ALT allele	106657
-Records with two or more ALT alleles	144
-SNP-classified records	103229
-Indel-classified records	3590
-Records found in both SNP and indel sets	18
-Records containing * in ALT	84
-Records with FILTER = .	106801
+Total variant records	1
+Records with exactly one ALT allele	1
+Records with two or more ALT alleles	0
+SNP-classified records (exclusive)	0
+Insertion-classified records (exclusive)	1
+Deletion-classified records (exclusive)	0
+MNV-classified records (exclusive)	0
+OTHER-classified records (exclusive)	0
+Records containing * in ALT	0
+Records with FILTER=PASS	0
+Records with FILTER=.	1
+Records with other FILTER values	0
